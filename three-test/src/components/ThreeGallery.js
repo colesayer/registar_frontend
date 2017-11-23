@@ -5,8 +5,12 @@ import TrackballControls from '../ref/trackball.js'
 class ThreeGallery extends Component{
 
 
+
+
   componentDidMount(){
     console.log("we're in")
+
+
 
 
   //CREATE CANVAS
@@ -19,10 +23,15 @@ class ThreeGallery extends Component{
   this.canvasArea = this.canvas.getBoundingClientRect()
 
 
-  //FOR USER DIMS
+  //FOR ROOM DIMS
   const dimX = 450
   const dimY = 873
   const dimZ = 1000
+
+  //FOR PAINTING DIMS
+  const ptgDimX = 48
+  const ptgDimY = 72
+  const ptgDimZ = 2
 
 
   //RENDERER
@@ -61,59 +70,43 @@ class ThreeGallery extends Component{
     pointLight.position.set(0, 0, 500)
     scene.add(pointLight);
 
+
+
   //CUBE OBJECT
-  const cubeGeometry = new THREE.BoxGeometry(100, 100, 100) //maybe CubeGeometry
-  const cubeMaterial = new THREE.MeshLambertMaterial({color: "#9eb8e2"});
-  const cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial)
-      cubeMesh.position.set(0, 250, 0)
-      scene.add(cubeMesh)
 
-  //GALLERY OBJECT
-  // const galleryGeometry = new THREE.BoxGeometry(750, 750, 750)
-  // const galleryMaterial = new THREE.MeshLambertMaterial({color: "#9eb8e2"})
-  // const galleryMesh = new THREE.Mesh(galleryGeometry, galleryMaterial)
-  //   galleryMesh.position.set(0, 0, 0)
-  //   scene.add(galleryMesh)
+  const paintingImageUrl = 'https://res.cloudinary.com/dwnehv6tb/image/upload/v1511464932/mw7ojvvgafovcvnewmuj.jpg'
 
-  // instantiate a loader
-  var loader = new THREE.ImageLoader();
-    loader.setCrossOrigin('use-credentials');
+  let paintingLoader = new THREE.TextureLoader()
+    paintingLoader.load(paintingImageUrl, function ( texture ) {
+      let paintingGeometry = new THREE.BoxGeometry((ptgDimX * 5), (ptgDimY * 5), (ptgDimZ * 5))
+      let paintingMaterial = new THREE.MeshBasicMaterial({map: texture, overdraw: 0.5});
+      let borderMaterial = new THREE.MeshBasicMaterial({color: "#ffffff"});
 
-  // load a image resource
-  loader.load(
-  	// resource URL
-  	'textures/skyboxsun25degtest.png',
-  	// Function when resource is loaded
-  	function ( image ) {
-  		// do something with it
-      console.log("heeeelp")
-  		// like drawing a part of it on a canvas
-  		var canvas = document.createElement( 'canvas' );
-  		var context = canvas.getContext( '2d' );
-  		context.drawImage( image, 100, 100 );
-  	},
-  	// Function called when download progresses
-  	function ( xhr ) {
-  		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-  	},
-  	// Function called when download errors
-  	function ( xhr ) {
-  		console.log( 'An error happened' );
-  	}
-  );
+      let materials = [
+        borderMaterial, borderMaterial, borderMaterial, borderMaterial, paintingMaterial, borderMaterial
+      ]
+
+      let paintingMesh = new THREE.Mesh(paintingGeometry, materials)
+        paintingMesh.position.set(0, 250, 0)
+
+      scene.add(paintingMesh)
+    })
 
 
 
+  const floorImageUrl = 'https://res.cloudinary.com/dwnehv6tb/image/upload/v1511459302/qsrgvseoqnusngtalbkc.jpg'
 
-  // Floor
-  // const floorMaterial = new THREE.MeshPhongMaterial()
-  // floorMaterial.map = THREE.ImageUtils.loadTexture
-  //             ("http://images.all-free-download.com/images/graphicthumb/grain_hd_photo_1_169151.jpg")
-  const theFloor = new THREE.Mesh( new THREE.PlaneGeometry( dimX, dimY), new THREE.MeshBasicMaterial({color: "#42f45f" }) );
-      theFloor.position.y = 0;
-      theFloor.rotation.x = - Math.PI / 2;
-      //theFloor.side = THREE.DoubleSide;
-      scene.add( theFloor );
+//FLOOR
+
+const floorLoader = new THREE.TextureLoader();
+  floorLoader.load(floorImageUrl, function (texture) {
+    const floorGeometry = new THREE.PlaneGeometry( dimX, dimY)
+    const floorMaterial = new THREE.MeshBasicMaterial({map: texture, overdraw: 0.5})
+    const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+      floorMesh.position.y = 0;
+      floorMesh.rotation.x = - Math.PI / 2;
+    scene.add(floorMesh)
+  })
 
   const wallMaterial = new THREE.MeshLambertMaterial({color: "#42f45f" })
 
@@ -157,23 +150,17 @@ class ThreeGallery extends Component{
     //      scene.add( nearWall );
 
 
+
   //RENDER LOOP
   requestAnimationFrame(render);
 
   function render(){
-    // cubeMesh.rotation.y += 0.01;
-    // cubeMesh.rotation.x += 0.01;
     controls.update()
     renderer.render(scene, camera);
     requestAnimationFrame(render);
 
     }
 
-
-    //IMAGE UPLOAD TO USE LATER
-  //   <input name="file" type="file"
-  //  class="file-upload" data-cloudinary-field="image_id"
-  //  data-form-data="{ 'transformation': {'crop':'limit','tags':'samples','width':3000,'height':2000}}"/>
 
   }
 
@@ -185,3 +172,25 @@ class ThreeGallery extends Component{
 }
 
 export default ThreeGallery
+
+//FLOOR WORKING
+// const theFloor = new THREE.Mesh( new THREE.PlaneGeometry( dimX, dimY), floorMaterial );
+//     theFloor.position.y = 0;
+//     theFloor.rotation.x = - Math.PI / 2;
+//     //theFloor.side = THREE.DoubleSide;
+//     scene.add( theFloor );
+//
+// const wallMaterial = new THREE.MeshLambertMaterial({color: "#42f45f" })
+//
+// var degra = (degree) => {
+//   return degree*(Math.PI/180);
+
+
+
+//   var loader = new THREE.TextureLoader();
+// loader.load('texture.png', function ( texture ) {
+//   var geometry = new THREE.SphereGeometry(1000, 20, 20);
+//   var material = new THREE.MeshBasicMaterial({map: texture, overdraw: 0.5});
+//   var mesh = new THREE.Mesh(geometry, material);
+//   scene.add(mesh);
+// });
